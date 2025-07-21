@@ -1,6 +1,11 @@
+import { createPaginationKeyboard } from '../../shared/utils/pagination';
+
 export const userKeyboards = {
-    categories: (categories, parentId) => {
+    categories: (categories, parentId, hasFiles, totalItems, page) => {
         const keyboard = categories.map(c => ([{ text: c.title, callback_data: `category_${c.id}` }]));
+
+        const paginationKeyboard = createPaginationKeyboard(totalItems, page, 5, `category_${parentId}`);
+        if(paginationKeyboard.length > 0) keyboard.push(paginationKeyboard);
 
         if (parentId !== "-1") {
             keyboard.push([{ text: "بازگشت", callback_data: `category_${parentId}` }]);
