@@ -2,6 +2,7 @@ import { isAdmin } from '../../admin/middleware/adminAuth';
 import * as adminCategoryManager from '../../admin/handlers/categoryManager';
 import * as adminGroupManager from '../../admin/handlers/groupManager';
 import * as adminWelcomeMessage from '../../admin/handlers/welcomeMessage';
+import * as adminStats from '../../admin/handlers/stats';
 import * as userNavigation from '../../user/handlers/navigation';
 import * as userSearch from '../../user/handlers/search';
 import { getAdminActivity, saveAdminActivity } from '../database/operations';
@@ -16,14 +17,26 @@ export const handleMessage = async (update) => {
     if (isAdmin(fromId)) {
         const adminActivity = await getAdminActivity(fromId);
         if (adminActivity && adminActivity.admin_action_wait) {
-            // Handle admin inputs
+            switch (adminActivity.admin_action_type) {
+                case 'send_text_for_a_input':
+                    switch (adminActivity.action_input_id) {
+                        case 'input_send_name':
+                            await adminCategoryManager.createCategory(chatId, text);
+                            break;
+                        // سایر موارد ورودی متن در اینجا مدیریت می‌شوند
+                    }
+                    break;
+                case 'send_messages_or_file_to_a_group':
+                    // منطق مربوط به دریافت فایل در اینجا پیاده‌سازی می‌شود
+                    break;
+            }
         } else {
             switch (text) {
                 case "افزودن دسته جدید":
-                    // request category name
+                    await adminCategoryManager.requestCategoryName(fromId);
                     break;
                 case "لیست دسته‌ها":
-                    adminCategoryManager.listCategories(chatId);
+                    await adminCategoryManager.listCategories(chatId);
                     break;
                 case "لیست گروه‌ها":
                     adminGroupManager.listGroups(chatId);
@@ -31,8 +44,11 @@ export const handleMessage = async (update) => {
                 case "پیام خوشامدگویی":
                     adminWelcomeMessage.listWelcomeMessages(chatId);
                     break;
+                case "آمار":
+                    adminStats.showStats(chatId);
+                    break;
                 default:
-                    // show admin main menu
+                    await sendMessage(chatId, "منوی اصلی ادمین", adminKeyboards.main);
             }
         }
     } else {
@@ -54,15 +70,34 @@ export const handleCallbackQuery = async (update) => {
         if (data.startsWith("edit_category_")) {
             const categoryId = data.replace("edit_category_", "");
             adminCategoryManager.showCategoryMenu(chatId, categoryId);
+        } else if (data.startsWith("delete_cat_confirm_")) {
+            const categoryId = data.replace("delete_cat_confirm_", "");
+            await adminCategoryManager.deleteCategoryRecursive(categoryId);
+            await sendMessage(chatId, "دسته با موفقیت حذف شد.");
+        } else if (data.startsWith("delete_cat_")) {
+            const categoryId = data.replace("delete_cat_", "");
+            await adminCategoryManager.deleteCategoryPrompt(chatId, categoryId);
+        } else if (data.startsWith("list_cat_")) {
+            const parts = data.split('_');
+            const parentId = parts[2];
+            const page = parseInt(parts[3]);
+            adminCategoryManager.listCategories(chatId, parentId, page);
         } else if (data === 'list_categories') {
             adminCategoryManager.listCategories(chatId);
+        } else if (data === 'admin_main') {
+            await sendMessage(chatId, "منوی اصلی ادمین", adminKeyboards.main);
         }
     } else {
         if (data.startsWith("category_")) {
-            const categoryId = data.replace("category_", "");
-            userNavigation.showCategory(chatId, messageId, categoryId);
+            const parts = data.split('_');
+            const categoryId = parts[1];
+            const page = parts.length > 2 ? parseInt(parts[2]) : 1;
+            userNavigation.showCategory(chatId, messageId, categoryId, page);
         } else if (data === 'search') {
             userSearch.requestSearchQuery(chatId);
+        } else if (data.startsWith('main_menu_')) {
+            const page = parseInt(data.split('_')[2]);
+            userNavigation.showMainMenu(chatId, messageId, page);
         } else if (data === 'main_menu') {
             userNavigation.showMainMenu(chatId, messageId);
         }
