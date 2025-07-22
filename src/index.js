@@ -21,8 +21,8 @@ router.post('/', async (request, env) => {
             });
         }
     } else if (update.callback_query) {
-        await userAuth({ update }, async () => {
-            await handleCallbackQuery(update);
+        await userAuth({ update }, async (ctx) => {
+            await handleCallbackQuery(update, ctx);
         });
     }
 

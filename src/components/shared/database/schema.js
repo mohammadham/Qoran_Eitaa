@@ -30,7 +30,10 @@ export const fileSchema = {
     categoryId: "",
     fileSize: 0,
     mimeType: "",
-    createdAt: ""
+    createdAt: "",
+    likes: 0,
+    dislikes: 0,
+    voters: {} // { userId: "like" | "dislike" }
 };
 
 export const welcomeMessageSchema = {
@@ -66,5 +69,6 @@ export const userSchema = {
     lastName: "",
     createdAt: "",
     lastSeen: "",
-    currentMenu: "main"
+    currentMenu: "main",
+    history: [] // Array of category IDs
 };

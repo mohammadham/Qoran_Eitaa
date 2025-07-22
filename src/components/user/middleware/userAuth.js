@@ -20,5 +20,5 @@ export const userAuth = async (ctx, next) => {
     await saveUser(user);
 
     ctx.user = user;
-    return next();
+    return next(ctx);
 };

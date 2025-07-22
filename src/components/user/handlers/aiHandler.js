@@ -21,11 +21,22 @@ export const handleAIQuery = async (userId, query) => {
     const categories = await get('categories') || {};
     const files = await get('files') || {};
 
-    // This is a simplified context generation. In a real scenario, you'd
-    // perform a more sophisticated search to find relevant content.
+    // A more intelligent context generation
+    const queryWords = query.split(' ');
+    const relevantCategories = Object.values(categories).filter(c =>
+        queryWords.some(word => c.title.includes(word) || c.description.includes(word))
+    );
+
     let context = "";
-    for (const category of Object.values(categories)) {
-        context += `دسته: ${category.title}\nتوضیحات: ${category.description}\n\n`;
+    if (relevantCategories.length > 0) {
+        for (const category of relevantCategories) {
+            context += `دسته: ${category.title}\nتوضیحات: ${category.description}\n\n`;
+        }
+    } else {
+        // Fallback to general context if no specific categories are found
+        for (const category of Object.values(categories)) {
+            context += `دسته: ${category.title}\nتوضیحات: ${category.description}\n\n`;
+        }
     }
 
     const response = await runModel('@cf/meta/llama-2-7b-chat-fp16', {

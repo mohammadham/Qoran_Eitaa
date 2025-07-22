@@ -11,6 +11,7 @@ export const adminKeyboards = {
         inline_keyboard: [
             [{ text: "ویرایش نام", callback_data: `edit_cat_name_${categoryId}` }, { text: "ویرایش توضیحات", callback_data: `edit_cat_desc_${categoryId}` }],
             [{ text: "افزودن فایل", callback_data: `add_file_${categoryId}` }, { text: "حذف دسته", callback_data: `delete_cat_${categoryId}` }],
+            [{ text: "ارسال اعلان به کاربران", callback_data: `notify_users_${categoryId}`}],
             [{ text: "بازگشت", callback_data: "list_categories" }],
             [{ text: "بازگشت به منوی اصلی", callback_data: "admin_main" }]
         ]

@@ -1,4 +1,4 @@
-import { get, getCategory } from '../../shared/database/operations';
+import { get, getCategory, saveUser } from '../../shared/database/operations';
 import { sendMessage, editMessageText, forwardMessage } from '../../shared/api/eitaaApi';
 import { userKeyboards } from '../keyboards/userKeyboards';
 import { paginate, createPaginationKeyboard } from '../../shared/utils/pagination';
@@ -30,6 +30,15 @@ export const showCategory = async (chatId, messageId, categoryId, page = 1) => {
         return;
     }
 
+    // Save history
+    const user = ctx.user;
+    if (user) {
+        if (!user.history) user.history = [];
+        user.history.push(categoryId);
+        if (user.history.length > 20) user.history.shift(); // Keep last 20 items
+        await saveUser(user);
+    }
+
     const childCategories = category.children.map(childId => categories[childId]).filter(c => c && c.type === 'user');
     const paginatedCategories = paginate(childCategories, page, 5);
 
@@ -38,7 +47,20 @@ export const showCategory = async (chatId, messageId, categoryId, page = 1) => {
 
     // First, send the files
     for (const file of categoryFiles) {
-        await forwardMessage(chatId, config.channelId, file.eitaaMessageId);
+        const sentMessage = await forwardMessage(chatId, config.channelId, file.eitaaMessageId);
+        if (sentMessage.ok) {
+            const messageId = sentMessage.result.message_id;
+            const keyboard = {
+                inline_keyboard: [[
+                    { text: `👍 ${file.likes || 0}`, callback_data: `like_${file.id}` },
+                    { text: `👎 ${file.dislikes || 0}`, callback_data: `dislike_${file.id}` }
+                ]]
+            };
+            // This is a conceptual implementation. editMessageCaption might not be available
+            // for all forwarded message types in Eitaa. A more robust solution might be
+            // to send the file and then send a new message with the file's info and the keyboard.
+            await editMessageText(chatId, messageId, sentMessage.result.caption || "", keyboard);
+        }
     }
 
     // Then, show the category menu
