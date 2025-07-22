@@ -11,3 +11,6 @@ CHANNEL_ID = "@your_channel_id"
 binding = "EITAA_BOT_DATA"
 id = "your_kv_namespace_id"
 preview_id = "your_preview_kv_namespace_id"
+
+[ai]
+binding = "AI"
