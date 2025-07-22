@@ -3,9 +3,12 @@ import * as adminCategoryManager from '../../admin/handlers/categoryManager';
 import * as adminGroupManager from '../../admin/handlers/groupManager';
 import * as adminWelcomeMessage from '../../admin/handlers/welcomeMessage';
 import * as adminStats from '../../admin/handlers/stats';
+import * as adminNotification from '../../admin/handlers/notificationHandler';
 import * as userNavigation from '../../user/handlers/navigation';
 import * as userSearch from '../../user/handlers/search';
 import * as userAI from '../../user/handlers/aiHandler';
+import * as userRecommendation from '../../user/handlers/recommendationHandler';
+import * as userPoll from '../../user/handlers/pollHandler';
 import { getAdminActivity, saveAdminActivity } from '../database/operations';
 import { adminKeyboards } from '../../admin/keyboards/adminKeyboards';
 
@@ -75,7 +78,7 @@ export const handleMessage = async (update) => {
     }
 };
 
-export const handleCallbackQuery = async (update) => {
+export const handleCallbackQuery = async (update, ctx) => {
     const callbackQuery = update.callback_query;
     const fromId = callbackQuery.from.id;
     const chatId = callbackQuery.message.chat.id;
@@ -98,6 +101,12 @@ export const handleCallbackQuery = async (update) => {
             const parentId = parts[2];
             const page = parseInt(parts[3]);
             adminCategoryManager.listCategories(chatId, parentId, page);
+        } else if (data.startsWith("notify_confirm_")) {
+            const categoryId = data.replace("notify_confirm_", "");
+            await adminNotification.notifyUsersAboutCategory(fromId, categoryId);
+        } else if (data.startsWith("notify_users_")) {
+            const categoryId = data.replace("notify_users_", "");
+            await adminNotification.confirmNotify(fromId, categoryId);
         } else if (data === 'list_categories') {
             adminCategoryManager.listCategories(chatId);
         } else if (data === 'admin_main') {
@@ -108,11 +117,18 @@ export const handleCallbackQuery = async (update) => {
             const parts = data.split('_');
             const categoryId = parts[1];
             const page = parts.length > 2 ? parseInt(parts[2]) : 1;
-            userNavigation.showCategory(chatId, messageId, categoryId, page);
+            userNavigation.showCategory(chatId, messageId, categoryId, page, ctx);
         } else if (data === 'search') {
             userSearch.requestSearchQuery(chatId);
         } else if (data === 'ask_ai') {
             userAI.requestAIQuery(fromId);
+        } else if (data === 'recommend') {
+            userRecommendation.getRecommendations(fromId);
+        } else if (data.startsWith('like_') || data.startsWith('dislike_')) {
+            const parts = data.split('_');
+            const voteType = parts[0];
+            const fileId = parts[1];
+            await userPoll.handleVote(fromId, fileId, voteType, chatId, messageId);
         } else if (data.startsWith('main_menu_')) {
             const page = parseInt(data.split('_')[2]);
             userNavigation.showMainMenu(chatId, messageId, page);

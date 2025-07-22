@@ -13,6 +13,10 @@ export const userKeyboards = {
 
         keyboard.push([{ text: "جستجو", callback_data: "search" }, { text: "از AI بپرس", callback_data: "ask_ai" }]);
 
+        if (parentId === "-1") {
+            keyboard.push([{ text: "پیشنهاد برای شما", callback_data: "recommend" }]);
+        }
+
         if (parentId !== "-1") {
             keyboard.push([{ text: " بازگشت به صفحه اصلی", callback_data: "main_menu" }])
         }
