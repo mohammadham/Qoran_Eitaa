@@ -1,6 +1,6 @@
 import { saveFile, getCategory, saveCategory } from '../../shared/database/operations';
 import { fileSchema } from '../../shared/database/schema';
-import { sendMessage, forwardMessage } from '../../shared/api/eitaaApi';
+import { sendMessage, forwardMessage } from '../../shared/api/telegramApi';
 import config from '../../../config/config';
 
 export const startFileUpload = async (chatId, categoryId) => {
@@ -20,14 +20,14 @@ export const handleFileUpload = async (message) => {
 
     // Forward the message to the database channel to get a permanent file_id
     const forwardedMessage = await forwardMessage(config.channelId, chatId, message.message_id);
-    const eitaaMessageId = forwardedMessage.result.message_id;
+    const telegramMessageId = forwardedMessage.result.message_id;
 
     const newFile = {
         ...fileSchema,
         id: `file_${new Date().getTime()}`,
         name: fileName,
         type: fileType,
-        eitaaMessageId: eitaaMessageId,
+        telegramMessageId: telegramMessageId,
         categoryId: categoryId,
         fileSize: file.file_size,
         mimeType: file.mime_type,

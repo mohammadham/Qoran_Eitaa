@@ -1,6 +1,6 @@
 import config from '../../../config/config';
 
-const API_URL = `https://eitaayar.ir/api/${config.botToken}`;
+const API_URL = `https://api.telegram.org/bot${config.botToken}`;
 
 const sendRequest = async (method, params) => {
     const response = await fetch(`${API_URL}/${method}`, {

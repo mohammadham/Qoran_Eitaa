@@ -1,5 +1,5 @@
 import { getGroups, saveGroups } from '../../shared/database/operations';
-import { sendMessage } from '../../shared/api/eitaaApi';
+import { sendMessage } from '../../shared/api/telegramApi';
 
 export const listGroups = async (chatId) => {
     const groupsData = await getGroups() || { groups: [] };

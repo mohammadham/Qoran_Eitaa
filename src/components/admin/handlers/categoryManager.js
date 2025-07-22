@@ -1,6 +1,6 @@
 import { saveCategory, getCategory, get, put } from '../../shared/database/operations';
 import { categorySchema } from '../../shared/database/schema';
-import { sendMessage } from '../../shared/api/eitaaApi';
+import { sendMessage } from '../../shared/api/telegramApi';
 import { adminKeyboards } from '../keyboards/adminKeyboards';
 
 export const requestCategoryName = async (chatId) => {

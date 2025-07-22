@@ -1,5 +1,5 @@
 import { get } from '../../shared/database/operations';
-import { sendMessage } from '../../shared/api/eitaaApi';
+import { sendMessage } from '../../shared/api/telegramApi';
 import { userKeyboards } from '../keyboards/userKeyboards';
 
 export const requestSearchQuery = async (chatId) => {

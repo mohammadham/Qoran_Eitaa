@@ -1,5 +1,5 @@
 import { getWelcomeMessages, saveWelcomeMessages } from '../../shared/database/operations';
-import { sendMessage } from '../../shared/api/eitaaApi';
+import { sendMessage } from '../../shared/api/telegramApi';
 import { adminKeyboards } from '../keyboards/adminKeyboards';
 
 export const listWelcomeMessages = async (chatId) => {

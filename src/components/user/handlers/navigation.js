@@ -1,5 +1,5 @@
 import { get, getCategory } from '../../shared/database/operations';
-import { sendMessage, editMessageText } from '../../shared/api/eitaaApi';
+import { sendMessage, editMessageText } from '../../shared/api/telegramApi';
 import { userKeyboards } from '../keyboards/userKeyboards';
 
 export const showMainMenu = async (chatId, messageId) => {

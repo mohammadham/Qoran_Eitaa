@@ -1,16 +1,18 @@
 {
-  "name": "eitaa-content-bot",
+  "name": "telegram-content-bot",
   "version": "1.0.0",
-  "description": "A content management bot for Eitaa running on Cloudflare Workers.",
+  "description": "A content management bot for Telegram on Cloudflare Workers.",
   "main": "index.js",
   "scripts": {
     "start": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "wrangler dev src/index.js --test-runner vitest"
   },
   "dependencies": {
-    "itty-router": "^2.4.10"
+    "itty-router": "^4.0.23"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "vitest": "^1.6.0",
+    "wrangler": "^3.57.0"
   }
 }

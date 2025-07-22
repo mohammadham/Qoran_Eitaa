@@ -26,7 +26,7 @@ export const fileSchema = {
     id: "",
     name: "",
     type: "", // "photo", "video", "document", "audio"
-    eitaaMessageId: "",
+    telegramMessageId: "",
     categoryId: "",
     fileSize: 0,
     mimeType: "",
