@@ -11,7 +11,7 @@ export const userKeyboards = {
             keyboard.push([{ text: "بازگشت", callback_data: `category_${parentId}` }]);
         }
 
-        keyboard.push([{ text: "جستجو", callback_data: "search" }]);
+        keyboard.push([{ text: "جستجو", callback_data: "search" }, { text: "از AI بپرس", callback_data: "ask_ai" }]);
 
         if (parentId !== "-1") {
             keyboard.push([{ text: " بازگشت به صفحه اصلی", callback_data: "main_menu" }])

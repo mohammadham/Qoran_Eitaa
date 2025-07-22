@@ -5,6 +5,7 @@ import * as adminWelcomeMessage from '../../admin/handlers/welcomeMessage';
 import * as adminStats from '../../admin/handlers/stats';
 import * as userNavigation from '../../user/handlers/navigation';
 import * as userSearch from '../../user/handlers/search';
+import * as userAI from '../../user/handlers/aiHandler';
 import { getAdminActivity, saveAdminActivity } from '../database/operations';
 import { adminKeyboards } from '../../admin/keyboards/adminKeyboards';
 
@@ -54,7 +55,22 @@ export const handleMessage = async (update) => {
     } else {
         // Handle user messages
         if (text === '/start') {
-            userNavigation.showMainMenu(chatId);
+            await userNavigation.showMainMenu(chatId);
+        } else if (text && text.startsWith('/summarize') && message.reply_to_message) {
+            const repliedMessage = message.reply_to_message;
+            // In a real scenario, you would fetch the full text of the file.
+            // Here, we assume the text is in the caption or text of the replied message.
+            const textToSummarize = repliedMessage.text || repliedMessage.caption || "";
+            if (textToSummarize) {
+                await userAI.summarizeText(fromId, textToSummarize);
+            } else {
+                await sendMessage(fromId, "لطفا این دستور را در پاسخ به یک پیام متنی ارسال کنید.");
+            }
+        } else {
+            const userActivity = await getAdminActivity(fromId);
+            if (userActivity && userActivity.admin_action_wait && userActivity.action_input_id === 'input_ask_ai') {
+                await userAI.handleAIQuery(fromId, text);
+            }
         }
     }
 };
@@ -95,6 +111,8 @@ export const handleCallbackQuery = async (update) => {
             userNavigation.showCategory(chatId, messageId, categoryId, page);
         } else if (data === 'search') {
             userSearch.requestSearchQuery(chatId);
+        } else if (data === 'ask_ai') {
+            userAI.requestAIQuery(fromId);
         } else if (data.startsWith('main_menu_')) {
             const page = parseInt(data.split('_')[2]);
             userNavigation.showMainMenu(chatId, messageId, page);
